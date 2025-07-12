@@ -1,4 +1,1 @@
 print("hey")
-
-print("pula")
-
