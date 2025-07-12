@@ -1,0 +1,2 @@
+folder/file2.py
+script.sh
