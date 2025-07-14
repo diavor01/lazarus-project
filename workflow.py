@@ -10,7 +10,7 @@ def get_changed_files() -> list[str]:
 
 # Here I make the api call to the AI
 def return_new_documentation(content: str) -> str:
-    return "new_" + content + '\nprint("Success")\n'
+    return content + '\nprint("Success")\n'
 
 def return_new_file_path(file: str) -> str:
     path = file.split("/")
@@ -20,7 +20,7 @@ def return_new_file_path(file: str) -> str:
     updated_path = "/".join(path)
     return updated_path
 
-def writing_new_file(file_path):
+def writing_new_file(file_path: str) -> str:
     with open(file_path, "r") as file:
         content = file.read()
 
@@ -42,27 +42,35 @@ def filter_files_to_ignore(updated_file_paths: list[str]) -> list[str]:
     # update the docs of. It could just be a copy of .gitignore
     return updated_file_paths
 
+def file_update(new_file_path: str, file_path: str) -> None:
+    subprocess.run(['mv', new_file_path, file_path], 
+                                capture_output=True, text=True)
+    click.echo(f'Changed {file_path}')
+
+def no_file_update(new_file_path: str) -> None:
+    click.echo("No change executed")
+    subprocess.run(['rm', '-rf', new_file_path], 
+                                capture_output=True, text=True)
+
 @click.command()
-def run_autodocs() -> None:
-    updated_file_paths = get_changed_files()
+@click.option("-a", "--all-files", is_flag=True)
+def run_autodocs(all_files: bool) -> None:
+    filtered_uncommited_file_paths = filter_files_to_ignore(get_changed_files())
 
-    filtered_updated_file_paths = filter_files_to_ignore(updated_file_paths)
-
-    for file_path in filtered_updated_file_paths:
+    for file_path in filtered_uncommited_file_paths:
         new_file_path = writing_new_file(file_path)
 
-        run_diff(file_path, new_file_path)
+        if all_files:
+            file_update(new_file_path, file_path)
+            continue
 
+        run_diff(file_path, new_file_path)
         if click.confirm(f"Accept these changes in {file_path}?"):
-            subprocess.run(['mv', new_file_path, file_path], 
-                                capture_output=True, text=True)
-            click.echo(f'Changed {file_path}')
+            file_update(new_file_path, file_path)
         else:
-            click.echo("No change executed")
-            subprocess.run(['rm', '-rf', new_file_path], 
-                                capture_output=True, text=True)
+            no_file_update(new_file_path)
             
-        if not file_path == filtered_updated_file_paths[-1]:
+        if not file_path == filtered_uncommited_file_paths[-1]:
             click.echo("Moving to the next file\n")
 
 if __name__ == "__main__":
