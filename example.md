@@ -19,5 +19,6 @@ Program flow:
 2) Filter which files you wish not to be rewriteen by autodocs.
 3) Run ```diff``` between you current file and one created automatically by autodocs.
 4) You have the option to accept or not the changes. The confirmation is required file by file. You also have the option to allow all modifications using the ```-a``` or ```--all-files``` flags.
+5) Use the ```-v``` or ```verbose``` flag for more informative output.
 
 If successful, the tool can be implemented in github workflows.
