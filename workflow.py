@@ -1,14 +1,14 @@
 import subprocess
 import click
 
-def get_changed_files() -> list[str]:
+def get_uncommited_files() -> list[str]:
     result = subprocess.run(['git', 'diff', '--name-only'], 
                           capture_output=True, text=True)
     
     updated_file_paths = result.stdout.strip().split('\n') if result.stdout.strip() else []
     return updated_file_paths
 
-# Here I make the api call to the AI
+# Here I make the api call to the chatbot
 def return_new_documentation(content: str) -> str:
     return content + '\nprint("Success")\n'
 
@@ -55,7 +55,7 @@ def no_file_update(new_file_path: str) -> None:
 @click.command()
 @click.option("-a", "--all-files", is_flag=True)
 def run_autodocs(all_files: bool) -> None:
-    filtered_uncommited_file_paths = filter_files_to_ignore(get_changed_files())
+    filtered_uncommited_file_paths = filter_files_to_ignore(get_uncommited_files())
 
     for file_path in filtered_uncommited_file_paths:
         new_file_path = writing_new_file(file_path)
