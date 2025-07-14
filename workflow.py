@@ -10,7 +10,7 @@ def get_changed_files() -> list[str]:
 
 # Here I make the api call to the AI
 def return_new_documentation(content: str) -> str:
-    return content + '\nprint("Success")\n'
+    return "new_" + content + '\nprint("Success")\n'
 
 def return_new_file_path(file: str) -> str:
     path = file.split("/")
@@ -61,7 +61,9 @@ def run_autodocs() -> None:
             click.echo("No change executed")
             subprocess.run(['rm', '-rf', new_file_path], 
                                 capture_output=True, text=True)
-        click.echo("Moving to the next file\n")
+            
+        if not file_path == filtered_updated_file_paths[-1]:
+            click.echo("Moving to the next file\n")
 
 if __name__ == "__main__":
     run_autodocs()
